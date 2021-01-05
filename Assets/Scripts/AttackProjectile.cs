@@ -4,9 +4,12 @@
 [RequireComponent (typeof(BoxCollider))]
 public class AttackProjectile : MonoBehaviour
 {
-    public int damage = 5;
-    public bool playerProjectile = false;
-    public GameObject bloodPrefab;
+    [SerializeField]
+    private int damage = 5;
+    [SerializeField]
+    private bool playerProjectile = false;
+    [SerializeField]
+    private GameObject bloodPrefab;
     
     public bool isActive = false;
 

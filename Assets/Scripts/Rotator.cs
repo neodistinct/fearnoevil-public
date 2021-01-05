@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class Rotator : MonoBehaviour
 {
-    public bool isActive = true;
-    public int rotationSpeed = 32;
+    [SerializeField]
+    private bool isActive = true;
+    [SerializeField]
+    private int rotationSpeed = 32;
 
     // Update is called once per frame
     void Update()

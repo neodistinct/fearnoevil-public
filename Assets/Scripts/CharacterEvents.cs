@@ -4,7 +4,8 @@ using UnityEngine.AI;
 
 public class CharacterEvents : MonoBehaviour
 {
-    public GameObject attackPoint;
+    [SerializeField]
+    private GameObject attackPoint;
 
     private NavMeshAgent navMeshAgent;
     private float speed = 0;
@@ -22,7 +23,7 @@ public class CharacterEvents : MonoBehaviour
         {
             attackPoint.GetComponent<AttackProjectile>().isActive = Convert.ToBoolean(value);
 
-            //Debug.Log("Set non-damaging:  " + value);
+            // Debug.Log("Set non-damaging:  " + value);
         }
         
     }

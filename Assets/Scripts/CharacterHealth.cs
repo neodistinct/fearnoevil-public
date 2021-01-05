@@ -3,25 +3,24 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 
-[AddComponentMenu ("SchoolFX/CharacterHealth")]
+[AddComponentMenu ("SCHOOL-FX/CharacterHealth")]
 public class CharacterHealth : MonoBehaviour
 {
-    GameMode gameMode;
-    Animator animator;
+    [SerializeField]
+    private List<AudioClip> hitSounds;
+    [SerializeField]
+    private List<AudioClip> deathSounds;
+    [SerializeField]
+    private Image healthSliderImage;
+    [SerializeField]
+    private Image damageOverlayImage;
+
+    private Animator damageOverlayAnimator;
+    private GameMode gameMode;
+    private Animator animator;
 
     public int health = 100;
-
     public bool pawned = false;
-
-    public Transform customWaypoint;
-
-    public List<AudioClip> hitSounds;
-
-    public List<AudioClip> deathSounds;
-
-    public Image healthSliderImage;
-    public Image damageOverlayImage;
-    Animator damageOverlayAnimator;
 
     public void Start()
     {

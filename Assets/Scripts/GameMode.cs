@@ -5,10 +5,20 @@ using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityStandardAssets.Characters.FirstPerson;
-using UnityStandardAssets.CrossPlatformInput;
 
 public class GameMode : MonoBehaviour
 {
+    [SerializeField]
+    private float interactionDistance = 3;
+    [SerializeField]
+    private AudioClip winSound;
+    [SerializeField]
+    private AudioClip looseSound;
+    [SerializeField]
+    private AudioClip fightSound;
+    [SerializeField]
+    private GameObject playerDummy;
+
     private Transform playerWeaponModel;
     private Animator playerWeaponModelAnimator;
 
@@ -19,7 +29,6 @@ public class GameMode : MonoBehaviour
     private GameObject menuEventSystem;
 
     // Gameplay affect values
-    public float INTERACTION_DISTANCE = 3;
     private const int ROTATION_SPEED = 4;
 
     // Scene List
@@ -43,14 +52,6 @@ public class GameMode : MonoBehaviour
     private bool followMode = false;
     private bool matchOver = false;
 
-    public AudioClip winSound;
-    public AudioClip looseSound;
-    public AudioClip fightSound;
-
-    public GameObject playerDummy;
-
-
-
     private void Start()
     {
         blockerObjects = GameObject.FindGameObjectsWithTag("Blocker");
@@ -59,7 +60,7 @@ public class GameMode : MonoBehaviour
 
             menuEventSystem = SceneManager.GetSceneByName("MainMenu").GetRootGameObjects()[1];
 
-            ////Debug.Log(menuEventSystem);
+            // Debug.Log(menuEventSystem);
         }
         catch (Exception)
         {
@@ -114,7 +115,7 @@ public class GameMode : MonoBehaviour
                     float distance = (testEnemy.transform.position - transform.position).sqrMagnitude;
 //                    //Debug.Log("Distance is: " + distance);
 
-                    if (distance <= INTERACTION_DISTANCE) // STOP AND ATTACK
+                    if (distance <= interactionDistance) // STOP AND ATTACK
                     {
 
                         navAgent.velocity = Vector3.zero;
@@ -290,7 +291,7 @@ public class GameMode : MonoBehaviour
         }
         else // Load next scene to play
         {
-            Invoke("LoadNextScene", 3);
+            Invoke("LoadNextScene", 3);            
         }
 
     }

@@ -2,10 +2,12 @@
 
 public class FightStartTrigger : MonoBehaviour
 {
+    [SerializeField]
+    private GameObject playerStatusText;
+    [SerializeField]
+    private float rotationSpeed = 32;
 
-    GameMode gameMode;
-    public GameObject playerStatusText;
-    public float rotationSpeed = 32;
+    private GameMode gameMode;
 
     // Start is called before the first frame update
     private void Start()

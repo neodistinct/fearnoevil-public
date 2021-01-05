@@ -4,12 +4,14 @@ using UnityEngine;
 public class WeaponController : MonoBehaviour
 {
     [Header ("Attack animation names")]
-    public string [] attackAnimations;
-
-    public AudioClip attackSound;
-    public AudioClip kickSound;
-
-    public bool active = true;
+    [SerializeField]
+    private string [] attackAnimations;
+    [SerializeField]
+    private AudioClip attackSound;
+    [SerializeField]
+    private AudioClip kickSound;
+    [SerializeField]
+    private bool active = true;
 
     // Update is called once per frame
     void Update()

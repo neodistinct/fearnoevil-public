@@ -24,6 +24,8 @@ public class Library
         return instance;
     }
 
+    private static string playerName = "Player 1";
+
     // And now... do the actual implementation of your beloved methods
     public static void RotateTowards(Transform target, Transform transform, float rotationSpeed)
     {
@@ -41,8 +43,6 @@ public class Library
     {
         return playerName;
     }
-
-    private static string playerName = "Player 1";
 
     public int GetCurrentSceneIndex(List<String> levels)
     {

@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 static public class LevelHub
 {
     private static string currentLevelName;
+
     public static Scene curentScene;
     public static Canvas menuCanvas;
     public static Canvas loadingCanvas;
@@ -54,7 +55,6 @@ static public class LevelHub
 
         SceneManager.sceneUnloaded -= LoadNewSceneAfterUnload;
     }
-
 
     // Events
     private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)

@@ -3,7 +3,8 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
-    public InputField PlayerNameInputField;
+    [SerializeField]
+    private InputField PlayerNameInputField;
 
     public void Start()
     {
