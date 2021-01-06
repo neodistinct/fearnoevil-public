@@ -46,6 +46,7 @@ public class GameMode : MonoBehaviour
     private Text matchStatusText;
     private Text enemiesPawnedCountText;
     private Text startFightText;
+    private Text pressAnyKeyText;
     private Text playerNameText;
 
     // Mode switchers 
@@ -85,6 +86,7 @@ public class GameMode : MonoBehaviour
         matchStatusText = GameObject.Find("MatchStatusText").GetComponent<Text>();
         enemiesPawnedCountText = GameObject.Find("EnemiesPawnedCountText").GetComponent<Text>();
         startFightText = GameObject.Find("StartFightText").GetComponent<Text>();
+        pressAnyKeyText = GameObject.Find("ReturnToMenuText").GetComponent<Text>();
         playerNameText = GameObject.Find("PlayerNameText").GetComponent<Text>();
         playerNameText.text = Library.GetPlayerName();
     }
@@ -330,6 +332,7 @@ public class GameMode : MonoBehaviour
 
         matchStatusText.text = "YOU LOOSE!";
         gameObject.GetComponent<AudioSource>().PlayOneShot(looseSound);
+        pressAnyKeyText.enabled = true;
 
         DeactivateAllEnemies();
 
