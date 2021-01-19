@@ -6,37 +6,74 @@ public class CharacterEvents : MonoBehaviour
 {
     [SerializeField]
     private GameObject attackPoint;
+    [SerializeField]
+    private Material defaultTexture;
+    [SerializeField]
+    private Material grinTexture;
 
-    private NavMeshAgent navMeshAgent;
-    private float speed = 0;
+    private NavMeshAgent _navMeshAgent;
+    private float _speed = 0;
+
+    private Transform face;
+    SkinnedMeshRenderer faceMeshRenderer;
+
 
     public void Awake()
     {
-        navMeshAgent = gameObject.GetComponent<NavMeshAgent>();
-       
-        speed = navMeshAgent.speed;
+        _navMeshAgent = gameObject.GetComponent<NavMeshAgent>();       
+        _speed = _navMeshAgent.speed;
+
+        face = transform.Find("Face");
+        faceMeshRenderer = face.GetComponent<SkinnedMeshRenderer>();
+
+    }
+
+    public void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Q))
+        {
+            var b = new Material[] { defaultTexture };
+            if (defaultTexture) faceMeshRenderer.materials = b;
+        }
     }
 
     public void SetDamaging(int value)
     {
-        if(attackPoint)
-        {
-            attackPoint.GetComponent<AttackProjectile>().isActive = Convert.ToBoolean(value);
+        bool isActive = Convert.ToBoolean(value);
 
-            // Debug.Log("Set non-damaging:  " + value);
+        if (attackPoint)
+        {
+            attackPoint.GetComponent<AttackProjectile>().isActive = isActive;
+            
+            if (isActive)
+            {
+                if (grinTexture) faceMeshRenderer.materials = new Material[] { grinTexture };
+                Debug.Log("Setting grin texture");
+            }
+            // Setting default texture in else statement here - purely doesnt work, must be Unity Engine bug. That's why we set it in SetMoving event.
         }
         
     }
 
     public void SetMoving(int value)
     {
-        if(navMeshAgent)
+        if(_navMeshAgent)
         {
             bool isMoving = Convert.ToBoolean(value);
 
-            float newSpeed = isMoving ? speed : 0.1f;
+            if (isMoving)
+            {
+                if (defaultTexture) faceMeshRenderer.materials = new Material[] { defaultTexture };
+            }
 
-            navMeshAgent.speed = newSpeed;
+            float newSpeed = isMoving ? _speed : 0.1f;
+
+            _navMeshAgent.speed = newSpeed;
         }
+    }
+
+    public void SetDefaultFaceTexture()
+    {
+        if (defaultTexture) faceMeshRenderer.materials = new Material[] { defaultTexture };
     }
 }

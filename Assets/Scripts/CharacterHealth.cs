@@ -15,21 +15,33 @@ public class CharacterHealth : MonoBehaviour
     [SerializeField]
     private Image damageOverlayImage;
 
-    private Animator damageOverlayAnimator;
-    private GameMode gameMode;
-    private Animator animator;
+    private Animator _damageOverlayAnimator;
+    private GameMode _gameMode;
+    private Animator _animator;
+    private Collider _characterCollider;
+    private AttackProjectile _attackProjectile;
+    private Collider _faceCollider;
+    private NavMeshAgent _navMeshAgent;
+    private AudioSource _audioSource;
 
     public int health = 100;
     public bool pawned = false;
 
-    public void Start()
+    public void Awake()
     {
-        gameMode = GameObject.Find("PlayerController").GetComponent<GameMode>();
-        animator = gameObject.GetComponent<Animator>();
+        Transform face = transform.Find("Face");
 
-        if(damageOverlayImage)
+        if (face) _faceCollider = face.GetComponent<Collider>();
+        _gameMode = GameObject.Find("PlayerController").GetComponent<GameMode>();
+        _animator = gameObject.GetComponent<Animator>();
+        _characterCollider = GetComponent<Collider>();
+        _attackProjectile = GetComponentInChildren<AttackProjectile>();
+        _navMeshAgent = GetComponent<NavMeshAgent>();
+        _audioSource = gameObject.GetComponent<AudioSource>();        
+
+        if (damageOverlayImage)
         {
-            damageOverlayAnimator = damageOverlayImage.GetComponent<Animator>();
+            _damageOverlayAnimator = damageOverlayImage.GetComponent<Animator>();
         }
 
     }
@@ -49,10 +61,10 @@ public class CharacterHealth : MonoBehaviour
             }
 
             // Animate damage on screen if one object was attached 
-            if(damageOverlayAnimator)
+            if(_damageOverlayAnimator)
             {
-                damageOverlayAnimator.SetTrigger("StopDamage");
-                damageOverlayAnimator.SetTrigger("Damage");
+                _damageOverlayAnimator.SetTrigger("StopDamage");
+                _damageOverlayAnimator.SetTrigger("Damage");
             }
 
 
@@ -62,7 +74,7 @@ public class CharacterHealth : MonoBehaviour
                 pawned = true;
 
                 if (gameObject.tag == "Player") {
-                    gameMode.DeactivatePlayer();
+                    _gameMode.DeactivatePlayer();
                 } else if(gameObject.tag == "Character")
                 {
                     KillCharacter();
@@ -72,37 +84,36 @@ public class CharacterHealth : MonoBehaviour
             // Visualize health in attached helth slider
             if (healthSliderImage != null)
             {
-
                 float fHealth = health * 0.01f;
-
                 healthSliderImage.fillAmount = fHealth;
-
             }
-
 
         }
 
     }
 
     private void KillCharacter()
-    {        
-        animator.SetBool("IsRunning", false);
-        animator.SetBool("IsAttacking", false);
-        animator.SetTrigger("DeathTrigger");
-        gameObject.GetComponent<Collider>().enabled = false;
-        gameObject.GetComponentInChildren<AttackProjectile>().isActive = false;
-        transform.Find("Face").GetComponent<Collider>().enabled = false;
-        gameObject.GetComponent<NavMeshAgent>().enabled = false;
+    {
+        if (_animator) { 
+            _animator.SetBool("IsRunning", false);
+            _animator.SetBool("IsAttacking", false);
+            _animator.SetTrigger("DeathTrigger");
+        }
 
+        if (_characterCollider) _characterCollider.enabled = false;
+        if (_attackProjectile) _attackProjectile.isActive = false;
+        if (_faceCollider) _faceCollider.enabled = false;
+        if (_navMeshAgent) _navMeshAgent.enabled = false;
 
         // Play death sound
         if (deathSounds.Count > 0)
         {
             int soundIndex = Random.Range(0, deathSounds.Count);
-
-            gameObject.GetComponent<AudioSource>().PlayOneShot(deathSounds[soundIndex]);
+            
+            _audioSource.PlayOneShot(deathSounds[soundIndex]);
         }
 
+        // TODO: Redo or remove if not neccessary
         //gameObject.GetComponent<NavMeshObstacle>().radius = 0.002f;
     }
 

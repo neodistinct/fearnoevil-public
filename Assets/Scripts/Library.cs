@@ -10,21 +10,23 @@ public class Library
     private Library() { }
 
     // TWO: Declare the actual STATIC variable of its own type
-    private static Library instance;
+    private static Library _instance;
 
     // THREE: Do the pattern-based kabbalistic magic GetInstance function
     public static Library GetInstance()
     {
-        if (instance == null)
+        if (_instance == null)
         {
-            instance = new Library();
-            return instance;
+            _instance = new Library();
+            return _instance;
         } 
 
-        return instance;
+        return _instance;
     }
 
-    private static string playerName = "Player 1";
+    /*------------------------------------------------------------------*/
+
+    private static string playerName = "Player 1"; // Not a constant, just keeping a default value
 
     // And now... do the actual implementation of your beloved methods
     public static void RotateTowards(Transform target, Transform transform, float rotationSpeed)

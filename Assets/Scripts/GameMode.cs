@@ -19,47 +19,56 @@ public class GameMode : MonoBehaviour
     [SerializeField]
     private GameObject playerDummy;
 
-    private Transform playerWeaponModel;
-    private Animator playerWeaponModelAnimator;
+    private Transform _playerWeaponModel;
+    private Animator _playerWeaponModelAnimator;
 
-    private Transform kungFuManeken;
-    private Animator kungFuAnimator;
+    private Transform _kungFuManeken;
+    private Animator _kungFuAnimator;
 
-    private Canvas gameCanvas;
-    private GameObject menuEventSystem;
+    private Rigidbody _playerRigidBody;
+    private BoxCollider _playerBoxCollider;
+
+    private CharacterController _playerCharacterController;
+    private FirstPersonController _playerFirstPersonController;
+    private Transform _playerFirstPersonCharacter;
+
+    private Canvas _gameCanvas;
+    private GameObject _menuEventSystem;
+
+    private AudioSource _audioPlayer;
+
+    // Scene List
+    private List<string> _levels = new List<string> { "Level1", "Level2" };
+
+    // List of enemies in scene
+    private GameObject[] _enemies;
+    private GameObject[] _blockerObjects;
+
+    // Access variables
+    private NavMeshAgent _navAgent;
+    private Animator _enemyAnimator;
+    private CharacterHealth _enemyHealth;
+    
+    private Text _matchStatusText;
+    private Text _enemiesPawnedCountText;
+    private Text _startFightText;
+    private Text _pressAnyKeyText;
+    private Text _playerNameText;
+
+    // Mode switchers 
+    private bool _followMode = false;
+    private bool _matchOver = false;
 
     // Gameplay affect values
     private const int ROTATION_SPEED = 4;
 
-    // Scene List
-    private List<string> levels = new List<string> { "Level1", "Level2" };
-
-    // List of enemies in scene
-    private GameObject[] enemies;
-    private GameObject[] blockerObjects;
-
-    // Access variables
-    private NavMeshAgent navAgent;
-    private Animator enemyAnimator;
-    private CharacterHealth enemyHealth;
-    
-    private Text matchStatusText;
-    private Text enemiesPawnedCountText;
-    private Text startFightText;
-    private Text pressAnyKeyText;
-    private Text playerNameText;
-
-    // Mode switchers 
-    private bool followMode = false;
-    private bool matchOver = false;
-
-    private void Start()
+    private void Awake()
     {
-        blockerObjects = GameObject.FindGameObjectsWithTag("Blocker");
+        _blockerObjects = GameObject.FindGameObjectsWithTag("Blocker");
 
         try { 
 
-            menuEventSystem = SceneManager.GetSceneByName("MainMenu").GetRootGameObjects()[1];
+            _menuEventSystem = SceneManager.GetSceneByName("MainMenu").GetRootGameObjects()[1];
 
             // Debug.Log(menuEventSystem);
         }
@@ -68,27 +77,36 @@ public class GameMode : MonoBehaviour
 
         }
 
-        gameCanvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+        _gameCanvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+        _audioPlayer = gameObject.GetComponent<AudioSource>();
 
         if (LevelHub.menuCanvas) LevelHub.menuCanvas.enabled = false;
-        if (menuEventSystem) menuEventSystem.SetActive(false);
+        if (_menuEventSystem) _menuEventSystem.SetActive(false);
 
-        playerWeaponModel = gameObject.transform.Find("FirstPersonCharacter").Find("WeaponModel");
-        playerWeaponModelAnimator = playerWeaponModel.GetComponent<Animator>();
-
-        kungFuManeken = gameObject.transform.Find("FirstPersonCharacter").Find("KungFuModel");
+        // Player section        
         
-        if (kungFuManeken) { 
-            kungFuAnimator = kungFuManeken.GetComponent<Animator>();
+        _playerFirstPersonCharacter = transform.Find("FirstPersonCharacter");
+        _playerWeaponModel = _playerFirstPersonCharacter.Find("WeaponModel");
+        _kungFuManeken = _playerFirstPersonCharacter.Find("KungFuModel");
+        _playerWeaponModelAnimator = _playerWeaponModel.GetComponent<Animator>();
+
+        if (_kungFuManeken) { 
+            _kungFuAnimator = _kungFuManeken.GetComponent<Animator>();
         }
 
-        enemies = GameObject.FindGameObjectsWithTag("Character");
-        matchStatusText = GameObject.Find("MatchStatusText").GetComponent<Text>();
-        enemiesPawnedCountText = GameObject.Find("EnemiesPawnedCountText").GetComponent<Text>();
-        startFightText = GameObject.Find("StartFightText").GetComponent<Text>();
-        pressAnyKeyText = GameObject.Find("ReturnToMenuText").GetComponent<Text>();
-        playerNameText = GameObject.Find("PlayerNameText").GetComponent<Text>();
-        playerNameText.text = Library.GetPlayerName();
+        _playerRigidBody = gameObject.GetComponent<Rigidbody>();
+        _playerBoxCollider = gameObject.GetComponentInChildren<BoxCollider>();
+        _playerCharacterController = gameObject.GetComponent<CharacterController>();
+        _playerFirstPersonController = gameObject.GetComponent<FirstPersonController>();
+
+        // Enemies section
+        _enemies = GameObject.FindGameObjectsWithTag("Character");
+        _matchStatusText = GameObject.Find("MatchStatusText").GetComponent<Text>();
+        _enemiesPawnedCountText = GameObject.Find("EnemiesPawnedCountText").GetComponent<Text>();
+        _startFightText = GameObject.Find("StartFightText").GetComponent<Text>();
+        _pressAnyKeyText = GameObject.Find("ReturnToMenuText").GetComponent<Text>();
+        _playerNameText = GameObject.Find("PlayerNameText").GetComponent<Text>();
+        _playerNameText.text = Library.GetPlayerName();
     }
 
     // Update is called once per frame
@@ -99,19 +117,19 @@ public class GameMode : MonoBehaviour
 
         // Now lets get moving info 
 
-        playerWeaponModelAnimator.SetFloat("BlendTest", Math.Abs(Input.GetAxis("Vertical")));
+        _playerWeaponModelAnimator.SetFloat("BlendTest", Math.Abs(Input.GetAxis("Vertical")));
         
 
         int pawnedEnemyCount = 0;
-        foreach (GameObject testEnemy in enemies)
+        foreach (GameObject testEnemy in _enemies)
         {
-            navAgent = testEnemy.GetComponent<NavMeshAgent>();
-            enemyAnimator = testEnemy.GetComponent<Animator>();
-            enemyHealth = testEnemy.GetComponent<CharacterHealth>();
+            _navAgent = testEnemy.GetComponent<NavMeshAgent>();
+            _enemyAnimator = testEnemy.GetComponent<Animator>();
+            _enemyHealth = testEnemy.GetComponent<CharacterHealth>();
 
-            if (followMode)
+            if (_followMode)
             {
-                if (testEnemy && enemyHealth.health > 0)
+                if (testEnemy && _enemyHealth.health > 0)
                 {
                     // Process distance
                     float distance = (testEnemy.transform.position - transform.position).sqrMagnitude;
@@ -120,12 +138,12 @@ public class GameMode : MonoBehaviour
                     if (distance <= interactionDistance) // STOP AND ATTACK
                     {
 
-                        navAgent.velocity = Vector3.zero;
+                        _navAgent.velocity = Vector3.zero;
 
-                        if (enemyAnimator)
+                        if (_enemyAnimator)
                         {
-                            enemyAnimator.SetBool("IsRunning", false);
-                            enemyAnimator.SetBool("IsAttacking", true);
+                            _enemyAnimator.SetBool("IsRunning", false);
+                            _enemyAnimator.SetBool("IsAttacking", true);
                         }
 
                         Library.RotateTowards(transform, testEnemy.transform, ROTATION_SPEED);
@@ -135,15 +153,15 @@ public class GameMode : MonoBehaviour
                     else
                     { // FOLLOW THE PLAYER
                         
-                        navAgent.enabled = true;
+                        _navAgent.enabled = true;
 
                         //testEnemy.GetComponentInChildren<NavMeshObstacle>().carving = false;
 
-                        navAgent.SetDestination(transform.position);
+                        _navAgent.SetDestination(transform.position);
 
-                        if (enemyAnimator) {
-                            enemyAnimator.SetBool("IsRunning", true);
-                            enemyAnimator.SetBool("IsAttacking", false);
+                        if (_enemyAnimator) {
+                            _enemyAnimator.SetBool("IsRunning", true);
+                            _enemyAnimator.SetBool("IsAttacking", false);
                         }
 
                     }
@@ -155,18 +173,18 @@ public class GameMode : MonoBehaviour
 
                 if (testEnemy)
                 {                    
-                    navAgent.enabled = false;
+                    _navAgent.enabled = false;
 
-                    if(enemyAnimator)
+                    if(_enemyAnimator)
                     {
-                        enemyAnimator.SetBool("IsRunning", false);
-                        enemyAnimator.SetBool("IsAttacking", false);
+                        _enemyAnimator.SetBool("IsRunning", false);
+                        _enemyAnimator.SetBool("IsAttacking", false);
                     }
 
                 }
             }
 
-            if (enemyHealth.pawned) pawnedEnemyCount++;
+            if (_enemyHealth.pawned) pawnedEnemyCount++;
         }
 
 
@@ -176,24 +194,24 @@ public class GameMode : MonoBehaviour
 
     private void ProcessPlayerInput()
     {
-        if (Input.GetButtonDown("Fire2") && kungFuAnimator) {
+        if (Input.GetButtonDown("Fire2") && _kungFuAnimator) {
 
-            if(playerWeaponModelAnimator.GetCurrentAnimatorStateInfo(0).IsName("Idle")) {
-                playerWeaponModelAnimator.SetTrigger("HolsterFast");
-                kungFuAnimator.SetTrigger("Kick");
+            if(_playerWeaponModelAnimator.GetCurrentAnimatorStateInfo(0).IsName("Idle")) {
+                _playerWeaponModelAnimator.SetTrigger("HolsterFast");
+                _kungFuAnimator.SetTrigger("Kick");
             }
 
 
         }
         else if (Input.GetKeyDown(KeyCode.Keypad5))
         {
-            followMode = !followMode;
+            _followMode = !_followMode;
 
-            if (followMode)
+            if (_followMode)
             {
-                gameObject.GetComponent<AudioSource>().PlayOneShot(fightSound);
+                _audioPlayer.PlayOneShot(fightSound);
                 
-                foreach (GameObject testEnemy in enemies)
+                foreach (GameObject testEnemy in _enemies)
                 {
 
                     CharacterHealth enemyHealthItem = testEnemy.GetComponent<CharacterHealth>();
@@ -208,28 +226,28 @@ public class GameMode : MonoBehaviour
 
             }
 
-            startFightText.enabled = false;
+            _startFightText.enabled = false;
         }
         else if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
         {
             if (Time.timeScale != 0)
             {
 
-                gameObject.GetComponent<FirstPersonController>().enabled = false;
+                _playerFirstPersonController.enabled = false;
 
                 Time.timeScale = 0;
                 if (LevelHub.menuCanvas) LevelHub.menuCanvas.enabled = true;
-                if(menuEventSystem) menuEventSystem.SetActive(true);
+                if(_menuEventSystem) _menuEventSystem.SetActive(true);
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
             }
             else
             {
-                gameObject.GetComponent<FirstPersonController>().enabled = true;
+                _playerFirstPersonController.enabled = true;
 
                 Time.timeScale = 1;
                 if (LevelHub.menuCanvas) LevelHub.menuCanvas.enabled = false;
-                if (menuEventSystem) menuEventSystem.SetActive(false);
+                if (_menuEventSystem) _menuEventSystem.SetActive(false);
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
 
@@ -239,12 +257,12 @@ public class GameMode : MonoBehaviour
 
     public void StartFight()
     {
-        followMode = true;
+        _followMode = true;
         //Debug.Log("Follow mode is:" + followMode);
 
-        if (followMode) gameObject.GetComponent<AudioSource>().PlayOneShot(fightSound);
+        if (_followMode) _audioPlayer.PlayOneShot(fightSound);
 
-        foreach(GameObject blocker in blockerObjects) {
+        foreach(GameObject blocker in _blockerObjects) {
             blocker.SetActive(false);
         }
         
@@ -252,12 +270,12 @@ public class GameMode : MonoBehaviour
 
     private void ProcessMatchEvents(int pawnedEnemyCount)
     {
-        if(enemiesPawnedCountText) { 
-            enemiesPawnedCountText.text = "ENEMIES PAWNED: " + pawnedEnemyCount + "/" + enemies.Length;
+        if(_enemiesPawnedCountText) { 
+            _enemiesPawnedCountText.text = "ENEMIES PAWNED: " + pawnedEnemyCount + "/" + _enemies.Length;
             // Display victory message if all are pawned
-            if (enemies.Length != 0 && pawnedEnemyCount == enemies.Length && !matchOver)
+            if (_enemies.Length != 0 && pawnedEnemyCount == _enemies.Length && !_matchOver)
             {
-                matchOver = true;
+                _matchOver = true;
                 Invoke("DoVictoryActions", 3);
             }
         }
@@ -265,27 +283,27 @@ public class GameMode : MonoBehaviour
 
     private void DoVictoryActions()
     {
-        int currentSceneIndex = Library.GetInstance().GetCurrentSceneIndex(levels);
+        int currentSceneIndex = Library.GetInstance().GetCurrentSceneIndex(_levels);
 
-        matchStatusText.text = "YOU WIN!";
-        gameObject.GetComponent<AudioSource>().PlayOneShot(winSound);
-        playerWeaponModelAnimator.SetTrigger("Holster");
+        _matchStatusText.text = "YOU WIN!";
+        _audioPlayer.PlayOneShot(winSound);
+        _playerWeaponModelAnimator.SetTrigger("Holster");
 
         // If this is the last level - show player character and do camera animations
-        if (currentSceneIndex == levels.Count - 1)
+        if (currentSceneIndex == _levels.Count - 1)
         {
             if(Camera.current) Camera.current.enabled = false;
             
             playerDummy.SetActive(true);
             playerDummy.GetComponent<Animator>().SetTrigger("Win");
             playerDummy.transform.Find("CameraRoot").gameObject.GetComponent<Rotator>().enabled = true;
-            gameObject.transform.Find("FirstPersonCharacter").gameObject.SetActive(false);
+            _playerFirstPersonCharacter.gameObject.SetActive(false);
 
-            gameObject.GetComponent<CharacterController>().enabled = false;
-            gameObject.GetComponent<FirstPersonController>().enabled = false;
+            _playerCharacterController.enabled = false;
+            _playerFirstPersonController.enabled = false;
 
             // Hide Game canvas
-            gameCanvas.enabled = false;
+            _gameCanvas.enabled = false;
 
             // Show Titles
             if(LevelHub.titlesCanvas) LevelHub.titlesCanvas.enabled = true;
@@ -300,12 +318,12 @@ public class GameMode : MonoBehaviour
 
     private void LoadNextScene()
     {
-        int currentSceneIndex = Library.GetInstance().GetCurrentSceneIndex(levels);
+        int currentSceneIndex = Library.GetInstance().GetCurrentSceneIndex(_levels);
         int nextSceneIndex = currentSceneIndex + 2;
 
         // Load next level if it is not last level
         
-        if (currentSceneIndex != levels.Count - 1) {
+        if (currentSceneIndex != _levels.Count - 1) {
             LevelHub.LoadLevel("Level" + nextSceneIndex);
         }
         
@@ -316,23 +334,23 @@ public class GameMode : MonoBehaviour
     {
         // Will loop through all enemies later
 
-        followMode = false;
+        _followMode = false;
 
     }
 
     public void DeactivatePlayer()
     {
-        gameObject.GetComponent<Rigidbody>().isKinematic = false;
-        gameObject.GetComponentInChildren<BoxCollider>().enabled = true;
+        _playerRigidBody.isKinematic = false;
+        _playerBoxCollider.enabled = true;
 
-        gameObject.GetComponent<CharacterController>().enabled = false;
-        gameObject.GetComponent<FirstPersonController>().enabled = false;
+        _playerCharacterController.enabled = false;
+        _playerFirstPersonController.enabled = false;
 
-        playerWeaponModel.gameObject.SetActive(false);
+        _playerWeaponModel.gameObject.SetActive(false);
 
-        matchStatusText.text = "YOU LOOSE!";
-        gameObject.GetComponent<AudioSource>().PlayOneShot(looseSound);
-        pressAnyKeyText.enabled = true;
+        _matchStatusText.text = "YOU LOOSE!";
+        _audioPlayer.PlayOneShot(looseSound);
+        _pressAnyKeyText.enabled = true;
 
         DeactivateAllEnemies();
 

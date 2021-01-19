@@ -6,7 +6,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField]
     private InputField PlayerNameInputField;
 
-    public void Start()
+    public void Awake()
     {
 
         LevelHub.menuCanvas = GameObject.Find("MenuCanvas").GetComponent<Canvas>();
@@ -18,7 +18,6 @@ public class MainMenu : MonoBehaviour
             PlayerNameInputField.onEndEdit.AddListener(OnPlayerNameChanged);
         }
 
-        Debug.Log("Menu module started");
     }
 
     public void OnExitMenu()

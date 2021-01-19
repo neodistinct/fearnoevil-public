@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 static public class LevelHub
 {
-    private static string currentLevelName;
+    private static string _currentLevelName;
 
     public static Scene curentScene;
     public static Canvas menuCanvas;
@@ -35,14 +35,14 @@ static public class LevelHub
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
 
-        currentLevelName = levelName;
+        _currentLevelName = levelName;
 
-        SceneManager.LoadScene(currentLevelName, LoadSceneMode.Additive);
+        SceneManager.LoadScene(_currentLevelName, LoadSceneMode.Additive);
     }
 
     private static void UnloadAndLoadScene(string levelName)
     {
-        currentLevelName = levelName;
+        _currentLevelName = levelName;
 
         SceneManager.UnloadSceneAsync(curentScene);
         SceneManager.sceneUnloaded += LoadNewSceneAfterUnload;
@@ -51,7 +51,7 @@ static public class LevelHub
     // Utility functions
     private static void LoadNewSceneAfterUnload(Scene scene)
     {
-        LoadScene(currentLevelName);
+        LoadScene(_currentLevelName);
 
         SceneManager.sceneUnloaded -= LoadNewSceneAfterUnload;
     }

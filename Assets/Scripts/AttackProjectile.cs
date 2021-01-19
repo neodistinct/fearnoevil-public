@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 [AddComponentMenu ("SchoolFX/Attack Projectile")]
 [RequireComponent (typeof(BoxCollider))]
@@ -29,13 +30,15 @@ public class AttackProjectile : MonoBehaviour
                     if (bloodPrefab) { 
                         // Also can be used ClosestPointOnBounds
                         Vector3 collisionPoint = other.gameObject.GetComponent<Collider>().ClosestPoint(transform.position);
-                        Instantiate(bloodPrefab, collisionPoint, Quaternion.identity);
+                        GameObject bloodPrefabInstance = Instantiate(bloodPrefab, collisionPoint, Quaternion.identity);
+
+                        Destroy(bloodPrefabInstance, 2);                       
+
                     }
                 }
             }
         }
 
     }
-
 
 }
