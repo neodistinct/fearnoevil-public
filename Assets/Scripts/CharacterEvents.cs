@@ -10,13 +10,14 @@ public class CharacterEvents : MonoBehaviour
     private Material defaultTexture;
     [SerializeField]
     private Material grinTexture;
+    [SerializeField]
+    private Material deadTexture;
 
     private NavMeshAgent _navMeshAgent;
     private float _speed = 0;
 
     private Transform face;
     SkinnedMeshRenderer faceMeshRenderer;
-
 
     public void Awake()
     {
@@ -44,13 +45,6 @@ public class CharacterEvents : MonoBehaviour
         if (attackPoint)
         {
             attackPoint.GetComponent<AttackProjectile>().isActive = isActive;
-            
-            if (isActive)
-            {
-                if (grinTexture) faceMeshRenderer.materials = new Material[] { grinTexture };
-                Debug.Log("Setting grin texture");
-            }
-            // Setting default texture in else statement here - purely doesnt work, must be Unity Engine bug. That's why we set it in SetMoving event.
         }
         
     }
@@ -61,10 +55,7 @@ public class CharacterEvents : MonoBehaviour
         {
             bool isMoving = Convert.ToBoolean(value);
 
-            if (isMoving)
-            {
-                if (defaultTexture) faceMeshRenderer.materials = new Material[] { defaultTexture };
-            }
+            if (isMoving) SetFaceTexture(FaceTexture.Default);
 
             float newSpeed = isMoving ? _speed : 0.1f;
 
@@ -72,8 +63,31 @@ public class CharacterEvents : MonoBehaviour
         }
     }
 
-    public void SetDefaultFaceTexture()
+    public void SetFaceTexture(FaceTexture faceTextureId = FaceTexture.Default)
     {
-        if (defaultTexture) faceMeshRenderer.materials = new Material[] { defaultTexture };
+
+        switch (faceTextureId) { 
+            case FaceTexture.Default:
+                if (defaultTexture) faceMeshRenderer.materials = new Material[] { defaultTexture };
+                break;
+            case FaceTexture.Grin:
+                if (grinTexture) faceMeshRenderer.materials = new Material[] { grinTexture };
+                break;
+            case FaceTexture.Dead:
+                if (deadTexture) faceMeshRenderer.materials = new Material[] { deadTexture };
+                break;
+            default:
+                break;
+        }
+
+        
     }
+}
+
+public enum FaceTexture
+{
+    Idle,
+    Default,
+    Grin,
+    Dead,
 }
