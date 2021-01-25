@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
+using UnityEngineInternal;
 
-[AddComponentMenu ("SCHOOL-FX/CharacterHealth")]
-public class CharacterHealth : MonoBehaviour
+[AddComponentMenu("SCHOOL-FX/CharacterStats")]
+public class CharacterStats : MonoBehaviour
 {
     [SerializeField]
     private List<AudioClip> hitSounds;
@@ -14,6 +16,8 @@ public class CharacterHealth : MonoBehaviour
     private Image healthSliderImage;
     [SerializeField]
     private Image damageOverlayImage;
+    [SerializeField]
+    private Slider energySlider;
 
     private Animator _damageOverlayAnimator;
     private GameMode _gameMode;
@@ -26,6 +30,10 @@ public class CharacterHealth : MonoBehaviour
 
     public int health = 100;
     public bool pawned = false;
+    [Tooltip("Energy to perform a kick move")]
+    public int energy = 0;
+
+    public static int KICK_ENERGY = 50;
 
     public void Awake()
     {
@@ -37,7 +45,7 @@ public class CharacterHealth : MonoBehaviour
         _characterCollider = GetComponent<Collider>();
         _attackProjectile = GetComponentInChildren<AttackProjectile>();
         _navMeshAgent = GetComponent<NavMeshAgent>();
-        _audioSource = gameObject.GetComponent<AudioSource>();        
+        _audioSource = gameObject.GetComponent<AudioSource>();
 
         if (damageOverlayImage)
         {
@@ -61,7 +69,7 @@ public class CharacterHealth : MonoBehaviour
             }
 
             // Animate damage on screen if one object was attached 
-            if(_damageOverlayAnimator)
+            if (_damageOverlayAnimator)
             {
                 _damageOverlayAnimator.SetTrigger("StopDamage");
                 _damageOverlayAnimator.SetTrigger("Damage");
@@ -75,12 +83,12 @@ public class CharacterHealth : MonoBehaviour
 
                 if (gameObject.tag == "Player") {
                     _gameMode.DeactivatePlayer();
-                } else if(gameObject.tag == "Character")
+                } else if (gameObject.tag == "Character")
                 {
                     KillCharacter();
                 }
             }
-            
+
             // Visualize health in attached helth slider
             if (healthSliderImage != null)
             {
@@ -90,6 +98,20 @@ public class CharacterHealth : MonoBehaviour
 
         }
 
+    }
+
+    public void ChangeEnergy(int energyValue)
+    {
+        energy += energyValue;
+
+        // Just in case if value somehow decceeds
+        if (energy < 0) energy = 0;
+
+        if (energySlider)
+        {
+
+            StartCoroutine(AnimateSlider(energy / 100f));
+        }
     }
 
     private void KillCharacter()
@@ -117,5 +139,17 @@ public class CharacterHealth : MonoBehaviour
         //gameObject.GetComponent<NavMeshObstacle>().radius = 0.002f;
     }
 
+
+    private IEnumerator AnimateSlider(float finalValue)
+    {
+        while (System.Math.Round(energySlider.value, 2) != finalValue) {
+            // SmoothStep seems to look more smooth than simple Lerp, huh?
+            energySlider.value = Mathf.SmoothStep(energySlider.value, finalValue, Time.deltaTime * 10);
+            // Proceeding after next Update
+            yield return null; 
+        }
+    }
+
+   
 
 }

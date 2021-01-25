@@ -31,6 +31,7 @@ public class GameMode : MonoBehaviour
     private CharacterController _playerCharacterController;
     private FirstPersonController _playerFirstPersonController;
     private Transform _playerFirstPersonCharacter;
+    private CharacterStats _playerStats;
 
     private Canvas _gameCanvas;
     private GameObject _menuEventSystem;
@@ -47,7 +48,7 @@ public class GameMode : MonoBehaviour
     // Access variables
     private NavMeshAgent _navAgent;
     private Animator _enemyAnimator;
-    private CharacterHealth _enemyHealth;
+    private CharacterStats _enemyHealth;
     
     private Text _matchStatusText;
     private Text _enemiesPawnedCountText;
@@ -98,6 +99,7 @@ public class GameMode : MonoBehaviour
         _playerBoxCollider = gameObject.GetComponentInChildren<BoxCollider>();
         _playerCharacterController = gameObject.GetComponent<CharacterController>();
         _playerFirstPersonController = gameObject.GetComponent<FirstPersonController>();
+        _playerStats = gameObject.GetComponent<CharacterStats>();
 
         // Enemies section
         _enemies = GameObject.FindGameObjectsWithTag("Character");
@@ -125,7 +127,7 @@ public class GameMode : MonoBehaviour
         {
             _navAgent = testEnemy.GetComponent<NavMeshAgent>();
             _enemyAnimator = testEnemy.GetComponent<Animator>();
-            _enemyHealth = testEnemy.GetComponent<CharacterHealth>();
+            _enemyHealth = testEnemy.GetComponent<CharacterStats>();
 
             if (_followMode)
             {
@@ -194,11 +196,16 @@ public class GameMode : MonoBehaviour
 
     private void ProcessPlayerInput()
     {
-        if (Input.GetButtonDown("Fire2") && _kungFuAnimator) {
+        if (Input.GetButtonDown("Fire2") && _kungFuAnimator && _playerStats.energy >= CharacterStats.KICK_ENERGY) {
 
-            if(_playerWeaponModelAnimator.GetCurrentAnimatorStateInfo(0).IsName("Idle")) {
+
+            if (_playerWeaponModelAnimator.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
+            {
                 _playerWeaponModelAnimator.SetTrigger("HolsterFast");
                 _kungFuAnimator.SetTrigger("Kick");
+
+                _playerStats.ChangeEnergy(-CharacterStats.KICK_ENERGY);
+
             }
 
 
@@ -214,7 +221,7 @@ public class GameMode : MonoBehaviour
                 foreach (GameObject testEnemy in _enemies)
                 {
 
-                    CharacterHealth enemyHealthItem = testEnemy.GetComponent<CharacterHealth>();
+                    CharacterStats enemyHealthItem = testEnemy.GetComponent<CharacterStats>();
                     Animator enemyAnimatorItem = testEnemy.GetComponent<Animator>();
 
                     enemyHealthItem.pawned = false;

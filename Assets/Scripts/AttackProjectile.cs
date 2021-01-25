@@ -21,7 +21,7 @@ public class AttackProjectile : MonoBehaviour
             if ((other.tag == "Player" && !playerProjectile)
                 || other.tag == "Character")
             {
-                CharacterHealth healthModule = other.GetComponent<CharacterHealth>();
+                CharacterStats healthModule = other.GetComponent<CharacterStats>();
 
                 if(healthModule) healthModule.CauseDamage(damage);
 
