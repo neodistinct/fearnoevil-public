@@ -107,14 +107,7 @@ public class CharacterStats : MonoBehaviour
         // Just in case if value somehow decceeds
         if (energy < 0) energy = 0;
 
-        if (energySlider)
-        {
-
-                
-            StartCoroutine(AnimateSlider(energy / 100f));
-
-
-        }
+        if (energySlider) StartCoroutine(AnimateSlider(energy / 100f));
     }
 
     private void KillCharacter()
@@ -153,7 +146,5 @@ public class CharacterStats : MonoBehaviour
         }
 
     }
-
-   
 
 }
