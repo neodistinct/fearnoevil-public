@@ -110,7 +110,10 @@ public class CharacterStats : MonoBehaviour
         if (energySlider)
         {
 
+                
             StartCoroutine(AnimateSlider(energy / 100f));
+
+
         }
     }
 
@@ -144,10 +147,11 @@ public class CharacterStats : MonoBehaviour
     {
         while (System.Math.Round(energySlider.value, 2) != finalValue) {
             // SmoothStep seems to look more smooth than simple Lerp, huh?
-            energySlider.value = Mathf.SmoothStep(energySlider.value, finalValue, Time.deltaTime * 10);
+            energySlider.value = Mathf.SmoothStep(energySlider.value, finalValue, Time.deltaTime * 15);
             // Proceeding after next Update
             yield return null; 
         }
+
     }
 
    

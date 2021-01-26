@@ -63,6 +63,7 @@ public class CharacterEvents : MonoBehaviour
         }
     }
 
+
     public void SetFaceTexture(FaceTexture faceTextureId = FaceTexture.Default)
     {
 

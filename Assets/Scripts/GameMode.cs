@@ -197,18 +197,16 @@ public class GameMode : MonoBehaviour
     private void ProcessPlayerInput()
     {
         if (Input.GetButtonDown("Fire2") && _kungFuAnimator && _playerStats.energy >= CharacterStats.KICK_ENERGY) {
+            Debug.Log("Anim name:" + _kungFuAnimator.GetCurrentAnimatorClipInfo(0)[0].clip.name);
 
-
-            if (_playerWeaponModelAnimator.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
+            if (_playerWeaponModelAnimator.GetCurrentAnimatorStateInfo(0).IsName("Idle") && 
+                !_kungFuAnimator.GetCurrentAnimatorStateInfo(0).IsName("Kick"))
             {
                 _playerWeaponModelAnimator.SetTrigger("HolsterFast");
                 _kungFuAnimator.SetTrigger("Kick");
-
-                _playerStats.ChangeEnergy(-CharacterStats.KICK_ENERGY);
-
             }
 
-
+            
         }
         else if (Input.GetKeyDown(KeyCode.Keypad5))
         {
