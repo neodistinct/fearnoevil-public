@@ -28,12 +28,13 @@ public class EnergyPickup : MonoBehaviour
         {
             if (_playerStats.energy < 100) {
                 _playerStats.ChangeEnergy(energyRecoveryAmount);
+                
+                if (_playerAudio && energyPickupSound)
+                {
+                    _playerAudio.PlayOneShot(energyPickupSound);
+                }
+                
                 Destroy(gameObject);
-            }
-
-            if(_playerAudio && energyPickupSound)
-            {
-                _playerAudio.PlayOneShot(energyPickupSound);
             }
 
         }

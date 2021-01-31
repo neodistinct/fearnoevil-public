@@ -73,13 +73,11 @@ public class GameMode : MonoBehaviour
 
         try
         {
-
             _menuEventSystem = SceneManager.GetSceneByName("MainMenu").GetRootGameObjects()[1];
-
         }
         catch (Exception)
         {
-
+            Debug.Log("Menu scene is not present. Stating in level test mode.");
         }
 
         _gameCanvas = GameObject.Find("Canvas").GetComponent<Canvas>();
@@ -241,7 +239,7 @@ public class GameMode : MonoBehaviour
 
             _startFightText.enabled = false;
         }
-        else if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
+        else if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
             if (Time.timeScale != 0)
             {
