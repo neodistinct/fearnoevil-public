@@ -163,13 +163,14 @@
     <Compile Include="Assets\ThirdPartyAssets\Standard Assets\CrossPlatformInput\Scripts\AxisTouchButton.cs" />
     <Compile Include="Assets\LevelItems\Fight Trigger\FightStartTrigger.cs" />
     <Compile Include="Assets\ThirdPartyAssets\Standard Assets\ParticleSystems\Scripts\Hose.cs" />
+    <Compile Include="Assets\Scripts\Events\KungFuEvents.cs" />
     <Compile Include="Assets\ThirdPartyAssets\Standard Assets\Environment\Water\Water\Scripts\SpecularLighting.cs" />
     <Compile Include="Assets\ThirdPartyAssets\Standard Assets\2D\Scripts\PlatformerCharacter2D.cs" />
     <Compile Include="Assets\ThirdPartyAssets\SampleScenes\Menu\Scripts\PauseMenu.cs" />
     <Compile Include="Assets\ThirdPartyAssets\Standard Assets\2D\Scripts\Platformer2DUserControl.cs" />
     <Compile Include="Assets\ThirdPartyAssets\Standard Assets\Utility\FPSCounter.cs" />
     <Compile Include="Assets\ThirdPartyAssets\Standard Assets\Utility\SimpleActivatorMenu.cs" />
-    <Compile Include="Assets\Scripts\Events\KungFuEvents.cs" />
+    <Compile Include="Assets\Scripts\LevelItems\EnergyPickup.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\ThirdPartyAssets\Standard Assets\Prototyping\Shaders\WorldCoordDiffuse.shader" />

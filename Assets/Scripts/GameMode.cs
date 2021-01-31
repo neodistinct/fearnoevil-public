@@ -49,12 +49,13 @@ public class GameMode : MonoBehaviour
     private NavMeshAgent _navAgent;
     private Animator _enemyAnimator;
     private CharacterStats _enemyHealth;
-    
+
     private Text _matchStatusText;
     private Text _enemiesPawnedCountText;
     private Text _startFightText;
     private Text _pressAnyKeyText;
     private Text _playerNameText;
+    private Text _demoText;
 
     // Mode switchers 
     private bool _followMode = false;
@@ -63,15 +64,18 @@ public class GameMode : MonoBehaviour
     // Gameplay affect values
     private const int ROTATION_SPEED = 4;
 
+    // TEMPORARY! To be removed after demo
+    private bool TEST_MODE = true;
+
     private void Awake()
     {
         _blockerObjects = GameObject.FindGameObjectsWithTag("Blocker");
 
-        try { 
+        try
+        {
 
             _menuEventSystem = SceneManager.GetSceneByName("MainMenu").GetRootGameObjects()[1];
 
-            // Debug.Log(menuEventSystem);
         }
         catch (Exception)
         {
@@ -85,13 +89,14 @@ public class GameMode : MonoBehaviour
         if (_menuEventSystem) _menuEventSystem.SetActive(false);
 
         // Player section        
-        
+
         _playerFirstPersonCharacter = transform.Find("FirstPersonCharacter");
         _playerWeaponModel = _playerFirstPersonCharacter.Find("WeaponModel");
         _kungFuManeken = _playerFirstPersonCharacter.Find("KungFuModel");
         _playerWeaponModelAnimator = _playerWeaponModel.GetComponent<Animator>();
 
-        if (_kungFuManeken) { 
+        if (_kungFuManeken)
+        {
             _kungFuAnimator = _kungFuManeken.GetComponent<Animator>();
         }
 
@@ -109,6 +114,7 @@ public class GameMode : MonoBehaviour
         _pressAnyKeyText = GameObject.Find("ReturnToMenuText").GetComponent<Text>();
         _playerNameText = GameObject.Find("PlayerNameText").GetComponent<Text>();
         _playerNameText.text = Library.GetPlayerName();
+        _demoText = GameObject.Find("DemoText").GetComponent<Text>();
     }
 
     // Update is called once per frame
@@ -120,7 +126,7 @@ public class GameMode : MonoBehaviour
         // Now lets get moving info 
 
         _playerWeaponModelAnimator.SetFloat("BlendTest", Math.Abs(Input.GetAxis("Vertical")));
-        
+
 
         int pawnedEnemyCount = 0;
         foreach (GameObject testEnemy in _enemies)
@@ -135,7 +141,7 @@ public class GameMode : MonoBehaviour
                 {
                     // Process distance
                     float distance = (testEnemy.transform.position - transform.position).sqrMagnitude;
-//                    //Debug.Log("Distance is: " + distance);
+                    //                    //Debug.Log("Distance is: " + distance);
 
                     if (distance <= interactionDistance) // STOP AND ATTACK
                     {
@@ -154,14 +160,15 @@ public class GameMode : MonoBehaviour
                     }
                     else
                     { // FOLLOW THE PLAYER
-                        
+
                         _navAgent.enabled = true;
 
                         //testEnemy.GetComponentInChildren<NavMeshObstacle>().carving = false;
 
                         _navAgent.SetDestination(transform.position);
 
-                        if (_enemyAnimator) {
+                        if (_enemyAnimator)
+                        {
                             _enemyAnimator.SetBool("IsRunning", true);
                             _enemyAnimator.SetBool("IsAttacking", false);
                         }
@@ -174,10 +181,10 @@ public class GameMode : MonoBehaviour
             {
 
                 if (testEnemy)
-                {                    
+                {
                     _navAgent.enabled = false;
 
-                    if(_enemyAnimator)
+                    if (_enemyAnimator)
                     {
                         _enemyAnimator.SetBool("IsRunning", false);
                         _enemyAnimator.SetBool("IsAttacking", false);
@@ -196,17 +203,18 @@ public class GameMode : MonoBehaviour
 
     private void ProcessPlayerInput()
     {
-        if (Input.GetButtonDown("Fire2") && _kungFuAnimator && _playerStats.energy >= CharacterStats.KICK_ENERGY) {
+        if (Input.GetButtonDown("Fire2") && _kungFuAnimator && _playerStats.energy >= CharacterStats.KICK_ENERGY)
+        {
             Debug.Log("Anim name:" + _kungFuAnimator.GetCurrentAnimatorClipInfo(0)[0].clip.name);
 
-            if (_playerWeaponModelAnimator.GetCurrentAnimatorStateInfo(0).IsName("Idle") && 
+            if (_playerWeaponModelAnimator.GetCurrentAnimatorStateInfo(0).IsName("Idle") &&
                 !_kungFuAnimator.GetCurrentAnimatorStateInfo(0).IsName("Kick"))
             {
                 _playerWeaponModelAnimator.SetTrigger("HolsterFast");
                 _kungFuAnimator.SetTrigger("Kick");
             }
 
-            
+
         }
         else if (Input.GetKeyDown(KeyCode.Keypad5))
         {
@@ -215,7 +223,7 @@ public class GameMode : MonoBehaviour
             if (_followMode)
             {
                 _audioPlayer.PlayOneShot(fightSound);
-                
+
                 foreach (GameObject testEnemy in _enemies)
                 {
 
@@ -242,7 +250,7 @@ public class GameMode : MonoBehaviour
 
                 Time.timeScale = 0;
                 if (LevelHub.menuCanvas) LevelHub.menuCanvas.enabled = true;
-                if(_menuEventSystem) _menuEventSystem.SetActive(true);
+                if (_menuEventSystem) _menuEventSystem.SetActive(true);
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
             }
@@ -267,15 +275,17 @@ public class GameMode : MonoBehaviour
 
         if (_followMode) _audioPlayer.PlayOneShot(fightSound);
 
-        foreach(GameObject blocker in _blockerObjects) {
+        foreach (GameObject blocker in _blockerObjects)
+        {
             blocker.SetActive(false);
         }
-        
+
     }
 
     private void ProcessMatchEvents(int pawnedEnemyCount)
     {
-        if(_enemiesPawnedCountText) { 
+        if (_enemiesPawnedCountText)
+        {
             _enemiesPawnedCountText.text = "ENEMIES PAWNED: " + pawnedEnemyCount + "/" + _enemies.Length;
             // Display victory message if all are pawned
             if (_enemies.Length != 0 && pawnedEnemyCount == _enemies.Length && !_matchOver)
@@ -290,35 +300,55 @@ public class GameMode : MonoBehaviour
     {
         int currentSceneIndex = Library.GetInstance().GetCurrentSceneIndex(_levels);
 
-        _matchStatusText.text = "YOU WIN!";
-        _audioPlayer.PlayOneShot(winSound);
+        // TODO: Uncomment after demo
+        //_matchStatusText.text = "YOU WIN!";
+        //_audioPlayer.PlayOneShot(winSound);
+
         _playerWeaponModelAnimator.SetTrigger("Holster");
 
         // If this is the last level - show player character and do camera animations
-        if (currentSceneIndex == _levels.Count - 1)
+        if (currentSceneIndex == _levels.Count - 1 || TEST_MODE)
         {
-            if(Camera.current) Camera.current.enabled = false;
-            
-            playerDummy.SetActive(true);
-            playerDummy.GetComponent<Animator>().SetTrigger("Win");
-            playerDummy.transform.Find("CameraRoot").gameObject.GetComponent<Rotator>().enabled = true;
-            _playerFirstPersonCharacter.gameObject.SetActive(false);
+            Invoke("ShowPlayerVictoryPose", 1);
+        }
+        else // Load next scene to play
+        {
+            Invoke("LoadNextScene", 3);
+        }
 
-            _playerCharacterController.enabled = false;
-            _playerFirstPersonController.enabled = false;
+    }
 
+    private void ShowPlayerVictoryPose()
+    {
+        if (Camera.current) Camera.current.enabled = false;
+
+        playerDummy.SetActive(true);
+        playerDummy.GetComponent<Animator>().SetTrigger("Win");
+        playerDummy.transform.Find("CameraRoot").gameObject.GetComponent<Rotator>().enabled = true;
+        _playerFirstPersonCharacter.gameObject.SetActive(false);
+
+        _playerCharacterController.enabled = false;
+        _playerFirstPersonController.enabled = false;
+
+        if (!TEST_MODE)
+        {
             // Hide Game canvas
             _gameCanvas.enabled = false;
 
             // Show Titles
-            if(LevelHub.titlesCanvas) LevelHub.titlesCanvas.enabled = true;
-            
-        }
-        else // Load next scene to play
-        {
-            Invoke("LoadNextScene", 3);            
+            if (LevelHub.titlesCanvas) LevelHub.titlesCanvas.enabled = true;
         }
 
+        // TODO: Remove after demo
+        _matchStatusText.text = "YOU WIN!";
+        _audioPlayer.PlayOneShot(winSound);
+
+        Invoke("ShowDemoText", 3);
+    }
+
+    private void ShowDemoText()
+    {
+        _demoText.enabled = true;
     }
 
     private void LoadNextScene()
@@ -327,11 +357,12 @@ public class GameMode : MonoBehaviour
         int nextSceneIndex = currentSceneIndex + 2;
 
         // Load next level if it is not last level
-        
-        if (currentSceneIndex != _levels.Count - 1) {
+
+        if (currentSceneIndex != _levels.Count - 1)
+        {
             LevelHub.LoadLevel("Level" + nextSceneIndex);
         }
-        
+
     }
 
     // Shall be used in singleton class actually
